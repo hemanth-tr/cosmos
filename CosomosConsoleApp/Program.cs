@@ -1,11 +1,13 @@
 ﻿using System;
+using CosomosConsoleApp;
 
 namespace CosmosConsoleApp;
 
 public class Program
 {
-	public static void Main(string[] args)
+	public static async Task Main(string[] args)
 	{
-		Console.WriteLine("Hello world");
+		await Startup.InitializeAsync(args);
+		Console.Read();
 	}
 }
