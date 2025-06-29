@@ -1,5 +1,4 @@
-﻿using System;
-using CosomosConsoleApp;
+﻿using CosomosConsoleApp;
 
 namespace CosmosConsoleApp;
 

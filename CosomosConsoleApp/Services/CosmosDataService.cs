@@ -1,4 +1,3 @@
-using System;
 using Microsoft.Azure.Cosmos;
 
 namespace CosomosConsoleApp.Services;
@@ -63,21 +62,25 @@ public class CosmosDataService : ICosmosService
 		return response.Resource;
 	}
 
-	public async Task<IEnumerable<T>> GetItemsAsync<T>(string query)
+	public async Task<IEnumerable<T>> GetItemsAsync<T>(string id)
 	{
+		string whereClause = string.IsNullOrWhiteSpace(id) ? string.Empty : " WHERE c.id = @id";
+		string query = "SELECT * FROM c" + whereClause;
 		this.ValidateContainerInitialization();
-		if (string.IsNullOrWhiteSpace(query))
-		{
-			throw new ArgumentNullException(nameof(query));
-		}
 
 		var queryDefinition = new QueryDefinition(query);
+		if (!string.IsNullOrWhiteSpace(id))
+		{
+			queryDefinition.WithParameter("@id", id);
+		}
+
 		var iterator = this.Container.GetItemQueryIterator<T>(queryDefinition);
 		var results = new List<T>();
 
 		while (iterator.HasMoreResults)
 		{
 			var response = await iterator.ReadNextAsync();
+			this.LogRequestCost(response);
 			if (response == null || response.Count == 0)
 			{
 				continue;
@@ -141,6 +144,17 @@ public class CosmosDataService : ICosmosService
 			return;
 		}
 
-		Console.WriteLine($"Request Charge: {itemResponse.RequestCharge} RU/s");
+		Console.WriteLine($"Operation: {itemResponse.Diagnostics.GetType().Name}, Request Charge: {itemResponse.RequestCharge} RU/s");
+	}
+
+	private void LogRequestCost<T>(FeedResponse<T> itemResponse)
+	{
+		if (itemResponse == null)
+		{
+			Console.WriteLine("Request Charge is not available.");
+			return;
+		}
+
+		Console.WriteLine($"Operation: {itemResponse.Diagnostics.GetType().Name}, Request Charge: {itemResponse.RequestCharge} RU/s");
 	}
 }

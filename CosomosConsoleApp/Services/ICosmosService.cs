@@ -1,5 +1,3 @@
-using System;
-
 namespace CosomosConsoleApp.Services;
 
 public interface ICosmosService
@@ -9,5 +7,5 @@ public interface ICosmosService
 	Task<T> GetItemAsync<T>(string id, string partitionKey);
 	Task<T> UpdateItemAsync<T>(string id, string partitionKey, T item);
 	Task DeleteItemAsync(string id, string partitionKey);
-	Task<IEnumerable<T>> GetItemsAsync<T>(string query);
+	Task<IEnumerable<T>> GetItemsAsync<T>(string id = null);
 }
